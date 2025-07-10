@@ -1,10 +1,13 @@
-import { getStudentById } from "@/app/api/students/data";
-import Link from "next/link";
+import { getStudentById } from "@/app/api/students/data";import Link from "next/link";
 import { notFound } from "next/navigation";
 import StudentForm from "../../components/StudentForm";
 
-export default function EditStudentPage({ params }: { params: { id: string } }) {
-  const paramId = params;
+export default async function EditStudentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const paramId = await params;
   const student = getStudentById(paramId.id);
 
   if (!student) {

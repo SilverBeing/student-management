@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";import { deleteStudent, getStudentById, updateStudent } from "../data";
-
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const paramValue = params;
+  const paramValue = await params;
   const student = getStudentById(paramValue.id);
 
   if (!student) {
@@ -16,9 +15,9 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const paramValue = params;
+  const paramValue = await params;
   const data = await req.json();
   const updated = updateStudent(paramValue.id, data);
 
@@ -31,9 +30,9 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const paramValue = params;
+  const paramValue = await params;
   const removed = deleteStudent(paramValue.id);
 
   if (!removed) {

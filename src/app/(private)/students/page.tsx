@@ -1,8 +1,11 @@
-import StudentsTable from "./components/StudentsTable";export default async function StudentsPage() {
+import { getStudents } from "@/app/api/students/data";import StudentsTable from "./components/StudentsTable";
+
+export default function StudentsPage() {
+  const students = getStudents();
   return (
     <div className="">
       <h1 className="text-2xl font-extrabold py-6">Students</h1>
-      <StudentsTable />
+      <StudentsTable students={students} />
     </div>
   );
 }

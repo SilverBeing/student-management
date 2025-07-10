@@ -2,8 +2,12 @@ import { getStudentById } from "@/app/api/students/data";import Link from "next/
 import { notFound } from "next/navigation";
 import StudentDetail from "../components/StudentDetail";
 
-export default function StudentPage({ params }: { params: { id: string } }) {
-  const paramValue = params;
+export default async function StudentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const paramValue = await params;
   const student = getStudentById(paramValue.id);
 
   if (!student) {
