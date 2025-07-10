@@ -1,5 +1,4 @@
-"use client";
-import StudentAvatar from "../../components/StudentAvatar";
+"use client";import StudentAvatar from "../../components/StudentAvatar";
 import type { Student } from "../../students/components/StudentsTable";
 import StudentsTable from "../../students/components/StudentsTable";
 import DashboardSummaryCard from "./DashboardSummaryCard";
