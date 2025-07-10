@@ -9,15 +9,17 @@ export interface Student {
   gpa: number;
 }
 
-const dataFile =
-  process.env.NODE_ENV === "production"
-    ? "/tmp/students.json"
-    : path.join(process.cwd(), "src/app/api/students/students.json");
+// In production, we'll use in-memory storage since file system is not persistent
+let inMemoryStudents: Student[] = [];
 
+const dataFile = path.join(process.cwd(), "src/app/api/students/students.json");
+
+// Initialize data file if it doesn't exist
 async function ensureDataFile(): Promise<void> {
   try {
     await fs.access(dataFile);
   } catch {
+    // File doesn't exist, create it with empty data
     const initialData: Student[] = [];
     await fs.writeFile(dataFile, JSON.stringify(initialData, null, 2), "utf-8");
   }
@@ -25,9 +27,15 @@ async function ensureDataFile(): Promise<void> {
 
 export async function getStudents(): Promise<Student[]> {
   try {
-    await ensureDataFile();
-    const data = await fs.readFile(dataFile, "utf-8");
-    return JSON.parse(data);
+    if (process.env.NODE_ENV === "production") {
+      // In production, return in-memory data
+      return inMemoryStudents;
+    } else {
+      // In development, read from file
+      await ensureDataFile();
+      const data = await fs.readFile(dataFile, "utf-8");
+      return JSON.parse(data);
+    }
   } catch (error) {
     console.error("Error reading students data:", error);
     return [];
@@ -36,8 +44,14 @@ export async function getStudents(): Promise<Student[]> {
 
 export async function saveStudents(students: Student[]): Promise<void> {
   try {
-    await ensureDataFile();
-    await fs.writeFile(dataFile, JSON.stringify(students, null, 2), "utf-8");
+    if (process.env.NODE_ENV === "production") {
+      // In production, update in-memory data
+      inMemoryStudents = students;
+    } else {
+      // In development, write to file
+      await ensureDataFile();
+      await fs.writeFile(dataFile, JSON.stringify(students, null, 2), "utf-8");
+    }
   } catch (error) {
     console.error("Error saving students data:", error);
     throw new Error("Failed to save students data");
