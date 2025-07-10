@@ -1,18 +1,11 @@
-import { getStudentById } from "@/app/api/students/data";import Link from "next/link";
-import { notFound } from "next/navigation";
-import StudentDetail from "../components/StudentDetail";
+import Link from "next/link";import StudentDetail from "../components/StudentDetail";
 
 export default async function StudentPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const paramValue = await params;
-  const student = getStudentById(paramValue.id);
-
-  if (!student) {
-    notFound();
-  }
+  const { id } = await params;
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center">
@@ -23,7 +16,7 @@ export default async function StudentPage({
         >
           ← Back
         </Link>
-        <StudentDetail student={student} />
+        <StudentDetail studentId={id} />
       </div>
     </div>
   );

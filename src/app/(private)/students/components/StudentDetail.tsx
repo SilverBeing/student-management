@@ -1,84 +1,102 @@
-"use client";import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import ConfirmModal from "../../components/ConfirmModal";
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import StudentAvatar from "../../components/StudentAvatar";
 import type { Student } from "./StudentsTable";
 
 interface StudentDetailProps {
-  student: Student | null;
+  studentId: string;
 }
 
-export default function StudentDetail({ student }: StudentDetailProps) {
-  const router = useRouter();
-  const [deleting, setDeleting] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+export default function StudentDetail({ studentId }: StudentDetailProps) {
+  const [student, setStudent] = useState<Student | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  if (!student) {
+  useEffect(() => {
+    fetch(`/api/students/${studentId}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Student not found");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setStudent(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
+  }, [studentId]);
+
+  if (loading) {
     return (
-      <div className="text-center py-8 text-red-500">Student not found.</div>
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p>Loading student...</p>
+      </div>
     );
   }
 
-  async function handleDelete() {
-    setDeleting(true);
-    const res = await fetch(`/api/students/${student?.id}`, {
-      method: "DELETE",
-    });
-    setDeleting(false);
-    setModalOpen(false);
-    if (res.ok) {
-      router.push("/students");
-    } else {
-      alert("Failed to delete student.");
-    }
+  if (error || !student) {
+    return (
+      <div className="text-center">
+        <h2 className="text-xl font-semibold mb-2">Student not found</h2>
+        <Link href="/students" className="text-blue-600 hover:underline">
+          ← Back to Students
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <div className="w-full max-w-lg bg-white rounded-xl shadow p-4 md:p-8">
-      <ConfirmModal
-        open={modalOpen}
-        message="Are you sure you want to delete this student?"
-        onConfirm={handleDelete}
-        onCancel={() => setModalOpen(false)}
-        loading={deleting}
-      />
-      <div className="flex flex-wrap justify-between items-center mb-6">
-        <h1 className="text-lg md:text-2xl font-bold truncate">
-          Student Profile
-        </h1>
-        <div className="flex gap-2">
-          <Link
-            href={`/students/${student.id}/edit`}
-            className="text-blue-600 hover:underline font-medium px-3 py-1 rounded"
-          >
-            Edit
-          </Link>
-          <button
-            onClick={() => setModalOpen(true)}
-            disabled={deleting}
-            className="text-red-600 hover:underline font-medium px-3 py-1 rounded disabled:opacity-50"
-          >
-            {deleting ? "Deleting..." : "Delete"}
-          </button>
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <StudentAvatar name={student.name} size={64} />
+        <div>
+          <h1 className="text-2xl font-bold">{student.name}</h1>
+          <p className="text-gray-600">
+            Registration: {student.registrationNumber}
+          </p>
         </div>
       </div>
-      <div className="space-y-4">
-        <div>
-          <span className="font-semibold">Name:</span> {student.name}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Major
+            </label>
+            <p className="text-lg">{student.major}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Date of Birth
+            </label>
+            <p className="text-lg">
+              {new Date(student.dob).toLocaleDateString()}
+            </p>
+          </div>
         </div>
-        <div>
-          <span className="font-semibold">Registration Number:</span>{" "}
-          {student.registrationNumber}
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              GPA
+            </label>
+            <p className="text-lg font-semibold">{student.gpa}</p>
+          </div>
         </div>
-        <div>
-          <span className="font-semibold">Major:</span> {student.major}
-        </div>
-        <div>
-          <span className="font-semibold">Date of Birth:</span> {student.dob}
-        </div>
-        <div>
-          <span className="font-semibold">GPA:</span> {student.gpa}
-        </div>
+      </div>
+
+      <div className="flex gap-4 pt-4">
+        <Link href={`/students/${student.id}/edit`} className="btn-primary">
+          Edit Student
+        </Link>
+        <Link href="/students" className="btn-secondary">
+          Back to Students
+        </Link>
       </div>
     </div>
   );

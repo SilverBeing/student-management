@@ -1,4 +1,5 @@
-"use client";import Link from "next/link";
+"use client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -15,12 +16,17 @@ export interface Student {
 
 interface StudentsTableProps {
   students: Student[];
+  onDelete?: () => void;
 }
 
-export default function StudentsTable({ students }: StudentsTableProps) {
+export default function StudentsTable({
+  students,
+  onDelete,
+}: StudentsTableProps) {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedMajor, setSelectedMajor] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -41,8 +47,26 @@ export default function StudentsTable({ students }: StudentsTableProps) {
     return matchesMajor && matchesSearch;
   });
 
-  // Use filtered students directly since server already sorts them
-  const sortedStudents = filtered;
+  // Sort students with latest on top (handles both old and new ID formats)
+  const sortedStudents = [...filtered].sort((a, b) => {
+    // Handle new format: timestamp-random
+    if (a.id.includes("-") && b.id.includes("-")) {
+      const timestampA = parseInt(a.id.split("-")[0]);
+      const timestampB = parseInt(b.id.split("-")[0]);
+      return timestampB - timestampA; // Descending order
+    }
+
+    // Handle old format: just random string
+    if (!a.id.includes("-") && !b.id.includes("-")) {
+      return b.id.localeCompare(a.id); // String comparison
+    }
+
+    // Mixed formats: new format goes first
+    if (a.id.includes("-")) return -1;
+    if (b.id.includes("-")) return 1;
+
+    return 0;
+  });
 
   function handleDeleteClick(id: string) {
     setDeleteId(id);
@@ -51,13 +75,26 @@ export default function StudentsTable({ students }: StudentsTableProps) {
 
   async function handleConfirmDelete() {
     if (!deleteId) return;
-    const res = await fetch(`/api/students/${deleteId}`, { method: "DELETE" });
-    setModalOpen(false);
-    setDeleteId(null);
-    if (res.ok) {
-      router.refresh();
-    } else {
+
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/students/${deleteId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        // Call the callback to refresh data in parent component
+        onDelete?.();
+        // Close modal only after successful deletion
+        setModalOpen(false);
+        setDeleteId(null);
+      } else {
+        alert("Failed to delete student.");
+      }
+    } catch {
       alert("Failed to delete student.");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -73,6 +110,7 @@ export default function StudentsTable({ students }: StudentsTableProps) {
         message="Are you sure you want to delete this student?"
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
+        loading={isDeleting}
       />
       <div className=" card !px-4 md:!px-5 !shadow-none mt-6">
         <h2 className=" text-xl font-semibold mb-4">Student list</h2>

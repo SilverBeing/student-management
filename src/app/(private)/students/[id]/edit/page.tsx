@@ -1,20 +1,11 @@
-import { getStudentById } from "@/app/api/students/data";import Link from "next/link";
-import { notFound } from "next/navigation";
-import StudentForm from "../../components/StudentForm";
+import Link from "next/link";import StudentEditWrapper from "../../components/StudentEditWrapper";
 
 export default async function EditStudentPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const paramId = await params;
-  const student = getStudentById(paramId.id);
-
-  if (!student) {
-    notFound();
-  }
-
-  const { id, ...initialValues } = student;
+  const { id } = await params;
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center">
@@ -25,8 +16,7 @@ export default async function EditStudentPage({
         >
           ← Back
         </Link>
-        <h1 className="text-2xl font-bold mb-6">Edit Student</h1>
-        <StudentForm initialValues={initialValues} mode="edit" studentId={id} />
+        <StudentEditWrapper studentId={id} />
       </div>
     </div>
   );

@@ -1,10 +1,41 @@
-"use client";import StudentAvatar from "../../components/StudentAvatar";
+"use client";import { useEffect, useState } from "react";
+import StudentAvatar from "../../components/StudentAvatar";
 import type { Student } from "../../students/components/StudentsTable";
 import StudentsTable from "../../students/components/StudentsTable";
 import DashboardSummaryCard from "./DashboardSummaryCard";
 import StudentGroupCard from "./StudentGroupCard";
 
-export default function DashboardLayout({ students }: { students: Student[] }) {
+export default function DashboardLayout() {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStudents = () => {
+    fetch("/api/students")
+      .then((res) => res.json())
+      .then((data) => {
+        setStudents(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   const total = students.length;
   const averageGPA = total
     ? students.reduce((sum, s) => sum + s.gpa, 0) / total
@@ -71,7 +102,7 @@ export default function DashboardLayout({ students }: { students: Student[] }) {
         </div>
       </div>
 
-      <StudentsTable students={students} />
+      <StudentsTable students={students} onDelete={fetchStudents} />
     </>
   );
 }
