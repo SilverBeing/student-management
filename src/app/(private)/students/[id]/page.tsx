@@ -1,18 +1,17 @@
 import { getStudentById } from "@/app/api/students/data";import Link from "next/link";
+import { notFound } from "next/navigation";
 import StudentDetail from "../components/StudentDetail";
-import type { Student } from "../components/StudentsTable";
 
-interface StudentDetailPageProps {
-  params: Promise<{ id: string }>;
-}
+export default function StudentPage({ params }: { params: { id: string } }) {
+  const paramValue = params;
+  const student = getStudentById(paramValue.id);
 
-export default async function StudentDetailPage({
-  params,
-}: StudentDetailPageProps) {
-  const paramValue = await params;
-  const student: Student | undefined = await getStudentById(paramValue.id);
+  if (!student) {
+    notFound();
+  }
+
   return (
-    <div className="min-h-[75vh]   flex items-center justify-center">
+    <div className="min-h-[75vh] flex items-center justify-center">
       <div className="w-full max-w-lg bg-white rounded-xl shadow p-4 md:p-8">
         <Link
           href="/students"
@@ -20,7 +19,7 @@ export default async function StudentDetailPage({
         >
           ← Back
         </Link>
-        <StudentDetail student={student ?? null} />
+        <StudentDetail student={student} />
       </div>
     </div>
   );

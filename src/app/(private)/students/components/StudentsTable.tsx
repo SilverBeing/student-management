@@ -41,10 +41,8 @@ export default function StudentsTable({ students }: StudentsTableProps) {
     return matchesMajor && matchesSearch;
   });
 
-  // Sort students by id (as a number) descending (latest first)
-  const sortedStudents = [...filtered].sort(
-    (a, b) => Number(b.id) - Number(a.id)
-  );
+  // Use filtered students directly since server already sorts them
+  const sortedStudents = filtered;
 
   function handleDeleteClick(id: string) {
     setDeleteId(id);

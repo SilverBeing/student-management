@@ -1,5 +1,6 @@
-import DashboardLayout from "./components/DashboardLayout";import { getStudents } from "@/app/api/students/data";
-export default async function page() {
-  const students = await getStudents();
+import { getStudents } from "@/app/api/students/data";import DashboardLayout from "./components/DashboardLayout";
+
+export default function DashboardPage() {
+  const students = getStudents();
   return <DashboardLayout students={students} />;
 }
