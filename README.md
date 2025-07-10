@@ -35,14 +35,28 @@ A modern, full-stack Student Information Management System built with Next.js, T
    yarn install
    ```
 
-2. **Run the development server:**
+2. **Set up environment variables:**
+
+   Create a `.env.local` file in the root directory with the following variables:
+
+   ```env
+   NEXTAUTH_SECRET=your-secret-key-here
+   ```
+
+   **Note:** Replace `your-secret-key-here` with a secure random string. You can generate one using:
+
+   ```bash
+   openssl rand -base64 32
+   ```
+
+3. **Run the development server:**
 
    ```bash
    yarn dev
 
    ```
 
-3. **Open your browser:**
+4. **Open your browser:**
    Visit [http://localhost:3000](http://localhost:3000) to use the app.
 
 ---
