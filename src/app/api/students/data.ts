@@ -9,33 +9,66 @@ export interface Student {
   gpa: number;
 }
 
-// In production, we'll use in-memory storage since file system is not persistent
-let inMemoryStudents: Student[] = [];
+declare global {
+  var studentsData: Student[] | undefined;
+}
 
 const dataFile = path.join(process.cwd(), "src/app/api/students/students.json");
 
-// Initialize data file if it doesn't exist
 async function ensureDataFile(): Promise<void> {
   try {
     await fs.access(dataFile);
   } catch {
-    // File doesn't exist, create it with empty data
     const initialData: Student[] = [];
     await fs.writeFile(dataFile, JSON.stringify(initialData, null, 2), "utf-8");
   }
 }
 
+async function getStudentsData(): Promise<Student[]> {
+  if (process.env.NODE_ENV === "production") {
+    if (global.studentsData) {
+      return global.studentsData;
+    }
+
+    try {
+      const data = await fs.readFile(dataFile, "utf-8");
+      const students = JSON.parse(data);
+      global.studentsData = students;
+      return students;
+    } catch {
+      console.log(
+        "Could not read from file in production, starting with empty data"
+      );
+      global.studentsData = [];
+      return [];
+    }
+  } else {
+    await ensureDataFile();
+    const data = await fs.readFile(dataFile, "utf-8");
+    return JSON.parse(data);
+  }
+}
+
+async function saveStudentsData(students: Student[]): Promise<void> {
+  if (process.env.NODE_ENV === "production") {
+    global.studentsData = students;
+
+    try {
+      await fs.writeFile(dataFile, JSON.stringify(students, null, 2), "utf-8");
+    } catch {
+      console.log(
+        "Could not write to file in production, data stored in memory only"
+      );
+    }
+  } else {
+    await ensureDataFile();
+    await fs.writeFile(dataFile, JSON.stringify(students, null, 2), "utf-8");
+  }
+}
+
 export async function getStudents(): Promise<Student[]> {
   try {
-    if (process.env.NODE_ENV === "production") {
-      // In production, return in-memory data
-      return inMemoryStudents;
-    } else {
-      // In development, read from file
-      await ensureDataFile();
-      const data = await fs.readFile(dataFile, "utf-8");
-      return JSON.parse(data);
-    }
+    return await getStudentsData();
   } catch (error) {
     console.error("Error reading students data:", error);
     return [];
@@ -44,17 +77,12 @@ export async function getStudents(): Promise<Student[]> {
 
 export async function saveStudents(students: Student[]): Promise<void> {
   try {
-    if (process.env.NODE_ENV === "production") {
-      // In production, update in-memory data
-      inMemoryStudents = students;
-    } else {
-      // In development, write to file
-      await ensureDataFile();
-      await fs.writeFile(dataFile, JSON.stringify(students, null, 2), "utf-8");
-    }
+    await saveStudentsData(students);
   } catch (error) {
     console.error("Error saving students data:", error);
-    throw new Error("Failed to save students data");
+    if (process.env.NODE_ENV === "development") {
+      throw new Error("Failed to save students data");
+    }
   }
 }
 
