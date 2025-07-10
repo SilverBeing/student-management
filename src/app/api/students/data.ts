@@ -7,10 +7,12 @@ export interface Student {
   gpa: number;
 }
 
+// Simple in-memory database using Map
 declare global {
   var studentsMap: Map<string, Student> | undefined;
 }
 
+// Initialize the in-memory database
 function getStudentsMap(): Map<string, Student> {
   if (!global.studentsMap) {
     global.studentsMap = new Map();
@@ -18,10 +20,12 @@ function getStudentsMap(): Map<string, Student> {
   return global.studentsMap;
 }
 
+// Convert Map to array for API responses
 function mapToArray(): Student[] {
   return Array.from(getStudentsMap().values());
 }
 
+// Convert array to Map for storage
 function arrayToMap(students: Student[]): Map<string, Student> {
   const map = new Map();
   students.forEach((student) => map.set(student.id, student));
