@@ -58,7 +58,7 @@ export default function StudentDetail({ studentId }: StudentDetailProps) {
         <div>
           <h1 className="text-2xl font-bold">{student.name}</h1>
           <p className="text-gray-600">
-            Registration: {student.registrationNumber}
+            Registration No: {student.registrationNumber}
           </p>
         </div>
       </div>
@@ -93,9 +93,6 @@ export default function StudentDetail({ studentId }: StudentDetailProps) {
       <div className="flex gap-4 pt-4">
         <Link href={`/students/${student.id}/edit`} className="btn-primary">
           Edit Student
-        </Link>
-        <Link href="/students" className="btn-secondary">
-          Back to Students
         </Link>
       </div>
     </div>

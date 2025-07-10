@@ -1,5 +1,4 @@
-"use client";
-import Link from "next/link";
+"use client";import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -30,13 +29,11 @@ export default function StudentsTable({
   const [selectedMajor, setSelectedMajor] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Compute unique majors from full data
   const majors = useMemo(() => {
     const set = new Set(students.map((s) => s.major.trim()));
     return Array.from(set);
   }, [students]);
 
-  // Filtered students for the table only
   const filtered = students.filter((s) => {
     const matchesMajor = selectedMajor
       ? s.major.trim() === selectedMajor
@@ -47,27 +44,7 @@ export default function StudentsTable({
     return matchesMajor && matchesSearch;
   });
 
-  // Sort students with latest on top (handles both old and new ID formats)
-  const sortedStudents = [...filtered].sort((a, b) => {
-    // Handle new format: timestamp-random
-    if (a.id.includes("-") && b.id.includes("-")) {
-      const timestampA = parseInt(a.id.split("-")[0]);
-      const timestampB = parseInt(b.id.split("-")[0]);
-      return timestampB - timestampA; // Descending order
-    }
-
-    // Handle old format: just random string
-    if (!a.id.includes("-") && !b.id.includes("-")) {
-      return b.id.localeCompare(a.id); // String comparison
-    }
-
-    // Mixed formats: new format goes first
-    if (a.id.includes("-")) return -1;
-    if (b.id.includes("-")) return 1;
-
-    return 0;
-  });
-
+  const sortedStudents = [...filtered];
   function handleDeleteClick(id: string) {
     setDeleteId(id);
     setModalOpen(true);
@@ -83,9 +60,7 @@ export default function StudentsTable({
       });
 
       if (res.ok) {
-        // Call the callback to refresh data in parent component
         onDelete?.();
-        // Close modal only after successful deletion
         setModalOpen(false);
         setDeleteId(null);
       } else {

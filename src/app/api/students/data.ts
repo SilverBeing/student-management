@@ -1,4 +1,5 @@
-export interface Student {  id: string;
+export interface Student {
+  id: string;
   name: string;
   registrationNumber: string;
   major: string;
@@ -49,7 +50,6 @@ export const getStudentById = (id: string): Student | undefined => {
 
 export const createStudent = (student: Omit<Student, "id">): Student => {
   const newStudent = { ...student, id: generateId() };
-  console.log("Creating new student with ID:", newStudent.id);
   global.studentsData.push(newStudent);
   return newStudent;
 };

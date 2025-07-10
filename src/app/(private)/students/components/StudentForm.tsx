@@ -20,7 +20,6 @@ export default function StudentForm({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Compute today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split("T")[0];
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

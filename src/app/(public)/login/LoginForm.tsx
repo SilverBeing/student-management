@@ -1,7 +1,7 @@
 "use client";
 import Button from "@/app/(private)/components/Button";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function LoginForm() {
@@ -10,6 +10,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,13 +21,13 @@ export default function LoginForm() {
       username,
       password,
       redirect: false,
-      callbackUrl: "/students",
+      callbackUrl,
     });
     setLoading(false);
     if (res?.error) {
       setError("Invalid username or password");
     } else {
-      router.push("/students");
+      router.push(callbackUrl);
     }
   }
 
