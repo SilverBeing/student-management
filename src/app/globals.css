@@ -1,15 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6faff;
+  --foreground: #22223b;
+  --card: #fff;
+  --border: #e5e7eb;
+  --primary: #4f8cff;
+  --success: #6dd47e;
+  --warning: #ffe066;
+  --danger: #ff6b6b;
+  --info: #a3d8f4;
+  --muted: #f1f3f8;
+  --accent: #ffd166;
+  --shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.06);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-poppins);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -22,5 +31,103 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), "Poppins", ui-sans-serif, system-ui,
+    sans-serif;
+}
+
+/* Utility classes for accent color */
+.accent {
+  color: var(--accent);
+}
+.bg-accent {
+  background-color: var(--accent);
+}
+.border-accent {
+  border-color: var(--accent);
+}
+
+/* Table styles */
+.table-header {
+  background: var(--secondary-background);
+  color: var(--text-secondary);
+}
+.table-row {
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+.table-row.selected {
+  background: #f3e8ff;
+}
+
+/* Button styles */
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: background 0.2s, box-shadow 0.15s;
+  font-size: 14px;
+}
+.btn-primary:hover {
+  background: #e6b800; /* slightly darker yellow for hover */
+  color: #fff;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
+  opacity: 1;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 1.5rem;
+  box-shadow: var(--shadow);
+  padding: 2rem;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 9999px;
+  font-size: 0.85em;
+  font-weight: 600;
+  padding: 0.25em 0.75em;
+}
+.badge-success {
+  background: var(--success);
+  color: #fff;
+}
+.badge-warning {
+  background: var(--warning);
+  color: #b68900;
+}
+.badge-danger {
+  background: var(--danger);
+  color: #fff;
+}
+.badge-info {
+  background: var(--info);
+  color: #22223b;
+}
+
+.progress-bar {
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--muted);
+  overflow: hidden;
+}
+.progress {
+  height: 100%;
+  border-radius: 9999px;
+  transition: width 0.3s;
+}
+.progress-success {
+  background: var(--success);
+}
+.progress-warning {
+  background: var(--warning);
+}
+.progress-danger {
+  background: var(--danger);
+}
+
+.rounded-xl {
+  border-radius: 1.5rem !important;
 }
