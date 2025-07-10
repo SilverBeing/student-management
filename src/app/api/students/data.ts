@@ -9,15 +9,39 @@ export interface Student {
   gpa: number;
 }
 
-const dataFile = path.join(process.cwd(), "src/app/api/students/students.json");
+const dataFile =
+  process.env.NODE_ENV === "production"
+    ? "/tmp/students.json"
+    : path.join(process.cwd(), "src/app/api/students/students.json");
+
+async function ensureDataFile(): Promise<void> {
+  try {
+    await fs.access(dataFile);
+  } catch {
+    const initialData: Student[] = [];
+    await fs.writeFile(dataFile, JSON.stringify(initialData, null, 2), "utf-8");
+  }
+}
 
 export async function getStudents(): Promise<Student[]> {
-  const data = await fs.readFile(dataFile, "utf-8");
-  return JSON.parse(data);
+  try {
+    await ensureDataFile();
+    const data = await fs.readFile(dataFile, "utf-8");
+    return JSON.parse(data);
+  } catch (error) {
+    console.error("Error reading students data:", error);
+    return [];
+  }
 }
 
 export async function saveStudents(students: Student[]): Promise<void> {
-  await fs.writeFile(dataFile, JSON.stringify(students, null, 2), "utf-8");
+  try {
+    await ensureDataFile();
+    await fs.writeFile(dataFile, JSON.stringify(students, null, 2), "utf-8");
+  } catch (error) {
+    console.error("Error saving students data:", error);
+    throw new Error("Failed to save students data");
+  }
 }
 
 export async function getStudentById(id: string): Promise<Student | undefined> {
